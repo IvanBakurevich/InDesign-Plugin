@@ -31,6 +31,12 @@
 #include "LCID.h"
 #include "ISelectionManager.h"
 #include "ITextEditSuite.h"
+#include <ILayoutUIUtils.h>
+#include <IPageList.h>
+#include <IStoryList.h>
+#include <ITextWalker.h>
+#include <IComposeScanner.h>
+#include <IAutoFlowCmdData.h>
 
 /** LCDialogController
 	Methods allow for the initialization, validation, and application of dialog widget
@@ -96,23 +102,33 @@ WidgetID LCDialogController::ValidateDialogFields(IActiveContext* myContext)
 */
 void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const WidgetID& widgetId)
 {
-	PMString resultString;
-	resultString = this->GetTextControlData(kLCDropDownListWidgetID);
-	resultString.Translate();
+	uint32 CARRIAGE_RETURN_HEX = 0x0D;
+	int finalLinesCount = 0;
 
-	PMString editBoxString = this->GetTextControlData(kLCTextEditBoxWidgetID);
-	PMString moneySign(kLCStaticTextKey);
-	moneySign.Translate();
+	IDocument* currentDocument = myContext->GetContextDocument();
+	InterfacePtr<IStoryList> storyList((IPMUnknown*)currentDocument, IID_ISTORYLIST);
 
-	resultString.Append('\t');
-	resultString.Append(moneySign);
-	resultString.Append(editBoxString);
-	
+	for (int32 i = 0; i < storyList->GetUserAccessibleStoryCount(); i++) {
+		int storyLinesCount = 0;
+		WideString wstr;
 
-	InterfacePtr<ITextEditSuite> textEditSuite(myContext->GetContextSelection(), UseDefaultIID());
+		// skip invalid UIDs
+		UIDRef storyRef = storyList->GetNthUserAccessibleStoryUID(i);
+		if (storyRef == kInvalidUIDRef) {
+			continue;
+		}
 
-	if (textEditSuite && textEditSuite->CanEditText()) {
-		ErrorCode status = textEditSuite->InsertText(WideString(resultString));
-		ASSERT_MSG(status == kSuccess, "LCDialogController::ApplyFields: can't insert text");
+		InterfacePtr<IComposeScanner> composeScanner(storyList->GetNthUserAccessibleStoryUID(i), UseDefaultIID());
+		composeScanner->CopyText(0, 1024, &wstr);
+
+		
+		for (int i = 0; i < wstr.Length(); i++) {
+			if (wstr.GetChar(i) == UTF32TextChar(CARRIAGE_RETURN_HEX)) {
+				storyLinesCount++;
+			}
+		}
+		storyLinesCount--; //end last carrriage return
+		finalLinesCount += storyLinesCount;
 	}
+	//TODO: Output finalLinesCount to widget;
 }
