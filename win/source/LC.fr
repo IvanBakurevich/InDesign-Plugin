@@ -292,15 +292,16 @@ resource LCDialogWidget (kSDKDefDialogResourceID + index_enUS)
 		// You should replace this widget with your own dialog content.
 		StaticTextWidget
 		(
-			0,								 // WidgetId (default=0)
+			kLCStaticTextWidgetID,								 // WidgetId (default=0)
 			kSysStaticTextPMRsrcId,			 // RsrcId
 			kBindNone,						 // Frame binding
-			Frame(0, 0, 270, 5),			 // Frame: left, top, right, bottom.
+			Frame(0, 0, 220, 50),			 // Frame: left, top, right, bottom.
 			kTrue, kTrue,					 // Visible, Enabled
 			kAlignLeft, kEllipsizeEnd, kTrue // Alignment, ellipsize style, convert ampersands
-			"",								 // Initial text.
-			0,
+			kLCStaticTextKey,								 // Initial text.
+			kLCTextEditBoxWidgetID,
 		),
+
 
 		// OK and Cancel buttons
 		EVEGenericPanelWidget
@@ -371,18 +372,6 @@ resource LCDialogWidget (kSDKDefDialogResourceID + index_enUS)
 				),
 
 
-				StaticTextWidget
-				(
-				kLCStaticTextWidgetID,
-				kSysStaticTextPMRsrcId,
-				kBindNone,
-				Frame(150,16,190,36),
-				kTrue, kTrue, kAlignRight,
-				kDontEllipsize, kTrue,
-				kLCStaticTextKey,
-				kLCTextEditBoxWidgetID
-
-				)
 			}
 		),
 	},
