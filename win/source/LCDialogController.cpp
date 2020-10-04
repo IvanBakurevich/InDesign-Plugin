@@ -42,6 +42,7 @@
 #include <IWaxIterator.h>
 #include <IWaxStrand.h>
 #include <IWaxLine.h>
+#include <CAlert.h>
 
 /** LCDialogController
 	Methods allow for the initialization, validation, and application of dialog widget
@@ -110,11 +111,14 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 	int finalLinesCount = 0;
 	int storyLinesCount = 0;
 	WideString output;
+	WideString noActiveDocumentErrorMessage((WideString)"LC plugin: No active document found! Please, open existing one.");
 
 	IDocument* currentDocument = myContext->GetContextDocument();
 	if (currentDocument == nil) {
+		CAlert::WarningAlert(noActiveDocumentErrorMessage);
 		return;
 	}
+
 
 	InterfacePtr<IStoryList> storyList((IPMUnknown*)currentDocument, IID_ISTORYLIST);
 
@@ -132,7 +136,6 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 		InterfacePtr<IWaxStrand> waxStrand((IWaxStrand*)textModel->QueryStrand(kFrameListBoss, IID_IWAXSTRAND));
 		K2::scoped_ptr<IWaxIterator> waxIterator(waxStrand->NewWaxIterator());
 
-		InterfacePtr<IWaxLine>wline(waxIterator->GetNextWaxLine());
 
 		IWaxLine* firstLine;
 		IWaxLine* nextLine;
@@ -153,15 +156,8 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 	}
 
 
-	output.Append((WideString)"\nLC plugin: ");
-	output.Append((WideString)"total lines in document - ");
+	output.Append((WideString)"LC plugin: total lines in document - ");
 	output.Append((WideString)std::to_string(finalLinesCount).c_str());
-	output.Append((WideString)".");
 
-	InterfacePtr<ITextEditSuite> textEditSuite(myContext->GetContextSelection(), UseDefaultIID());
-
-	if (textEditSuite && textEditSuite->CanEditText()) {
-		ErrorCode status = textEditSuite->InsertText(WideString(output));
-		ASSERT_MSG(status == kSuccess, "LCDialogController::ApplyFields: can't insert text");
-	}
+	CAlert::InformationAlert(output);
 }
