@@ -32,9 +32,9 @@ resource StringTable (kSDKDefStringsResourceID + index_enUS)
         {
         	 // ----- Menu strings
                 kLCCompanyKey,					kLCCompanyValue,
-                kLCAboutMenuKey,					kLCPluginName,
+                kLCAboutMenuKey,				kLCPluginName,
                 kLCPluginsMenuKey,				kLCPluginName,
-				kLCDialogMenuItemKey,			kLCPluginName,
+				kLCDialogMenuItemKey,			"Run",
 	
                 kSDKDefAboutThisPlugInMenuKey,			kSDKDefAboutThisPlugInMenuValue_enUS,
 
@@ -48,7 +48,7 @@ resource StringTable (kSDKDefStringsResourceID + index_enUS)
                 kLCDropDownItem_2Key, "Item2",
                 kLCDropDownItem_3Key, "Item3",
                 //StaticText string key
-                kLCStaticTextKey, "This plugin count lines in the active document. Output result into any field where text can be inserted.\nFocus curson where you want to output result and click OK button.",
+                kLCStaticTextKey, "This plugin count lines in active document.\nClick OK button to run.",
 
 
 		// ----- Misc strings
