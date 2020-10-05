@@ -163,9 +163,9 @@ DECLARE_PMID(kActionIDSpace, kLCDialogActionID, kLCPrefix + 4)
 
 // WidgetIDs:
 DECLARE_PMID(kWidgetIDSpace, kLCDialogWidgetID, kLCPrefix + 1)
-DECLARE_PMID(kWidgetIDSpace, kLCDropDownListWidgetID, kLCPrefix + 2)
-DECLARE_PMID(kWidgetIDSpace, kLCTextEditBoxWidgetID, kLCPrefix + 3)
-DECLARE_PMID(kWidgetIDSpace, kLCStaticTextWidgetID, kLCPrefix + 4)
+DECLARE_PMID(kWidgetIDSpace, kLCTextEditBoxWidgetID, kLCPrefix + 2)
+DECLARE_PMID(kWidgetIDSpace, kLCStaticTextWidgetID, kLCPrefix + 3)
+//DECLARE_PMID(kWidgetIDSpace, kLCWidgetID, kLCPrefix + 4)
 //DECLARE_PMID(kWidgetIDSpace, kLCWidgetID, kLCPrefix + 5)
 //DECLARE_PMID(kWidgetIDSpace, kLCWidgetID, kLCPrefix + 6)
 //DECLARE_PMID(kWidgetIDSpace, kLCWidgetID, kLCPrefix + 7)

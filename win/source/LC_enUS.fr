@@ -48,7 +48,7 @@ resource StringTable (kSDKDefStringsResourceID + index_enUS)
                 kLCDropDownItem_2Key, "Item2",
                 kLCDropDownItem_3Key, "Item3",
                 //StaticText string key
-                kLCStaticTextKey, "This plugin count lines in active document.\nClick OK button to run.",
+                kLCStaticTextKey, "This plugin count lines in active document.\nClick OK button to run. \nCount such in page(s): ",
 
 
 		// ----- Misc strings

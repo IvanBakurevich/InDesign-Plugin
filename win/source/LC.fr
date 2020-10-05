@@ -295,12 +295,44 @@ resource LCDialogWidget (kSDKDefDialogResourceID + index_enUS)
 			kLCStaticTextWidgetID,								 // WidgetId (default=0)
 			kSysStaticTextPMRsrcId,			 // RsrcId
 			kBindNone,						 // Frame binding
-			Frame(0, 0, 280, 50),			 // Frame: left, top, right, bottom.
+			Frame(0, 0, 280, 80),			 // Frame: left, top, right, bottom.
 			kTrue, kTrue,					 // Visible, Enabled
 			kAlignLeft, kEllipsizeEnd, kTrue // Alignment, ellipsize style, convert ampersands
 			kLCStaticTextKey,								 // Initial text.
 			kLCTextEditBoxWidgetID,
 		),
+
+		TextEditBoxWidget
+		(
+		kLCTextEditBoxWidgetID,
+		kSysEditBoxPMRsrcId,
+		kBindNone,
+		Frame(0,0,130,20),
+		kTrue, kTrue,
+		0,
+		0, 0,
+		0,
+		kFalse,
+		kFalse,
+		kFalse,
+		kFalse,
+		0,
+		0,
+		"",
+		),
+
+
+		/*StaticTextWidget
+		(
+			kLCStaticTextWidgetID,								 // WidgetId (default=0)
+			kSysStaticTextPMRsrcId,			 // RsrcId
+			kBindNone,						 // Frame binding
+			Frame(0, 0, 130, 20),			 // Frame: left, top, right, bottom.
+			kTrue, kTrue,					 // Visible, Enabled
+			kAlignLeft, kEllipsizeEnd, kTrue // Alignment, ellipsize style, convert ampersands
+			"Count in such page(s): ",								 // Initial text.
+			kLCTextEditBoxWidgetID,
+		),*/
 
 
 		// OK and Cancel buttons
