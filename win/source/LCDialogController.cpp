@@ -152,6 +152,10 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 			}
 		}
 
+		if (textModel->TotalLength() != textModel->GetPrimaryStoryThreadSpan()) {
+			storyLinesCount--;
+		}
+
 		finalLinesCount += storyLinesCount;
 	}
 
