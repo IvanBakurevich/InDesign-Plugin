@@ -100,7 +100,34 @@ void LCDialogController::InitializeDialogFields(IActiveContext* dlgContext)
 WidgetID LCDialogController::ValidateDialogFields(IActiveContext* myContext)
 {
 	WidgetID result = CDialogController::ValidateDialogFields(myContext);
-	// Put code to validate widget values here.
+
+	PMString pagesInputBoxString = this->GetTextControlData(kLCTextEditBoxWidgetID);
+	//	empty string don't need validation.
+	if (pagesInputBoxString.IsEmpty()) {
+		return result;
+	}
+
+	IDocument* currentDocument = myContext->GetContextDocument();
+	//	can't apply validation without active document.
+	if (currentDocument == nil) {
+		return result;
+	}
+
+	InterfacePtr<IPageList> pageList((IPMUnknown*)currentDocument, IID_IPAGELIST);
+	int32 docPagesCount = pageList->GetPageCount();
+
+	PMString::ConversionError parseErrorCode;
+	int32 pagesInputBoxInt = pagesInputBoxString.GetAsNumber(&parseErrorCode);
+
+	if (parseErrorCode != PMString::ConversionError::kNoError) {
+		result = kLCTextEditBoxWidgetID;
+		CAlert::InformationAlert("Value must be an integer.");
+	}
+	else if (pagesInputBoxInt < 0 || pagesInputBoxInt > docPagesCount) {
+		result = kLCTextEditBoxWidgetID;
+		CAlert::InformationAlert("Value is out of range.");
+	}
+
 	return result;
 }
 
@@ -117,6 +144,16 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 	if (currentDocument == nil) {
 		CAlert::WarningAlert(noActiveDocumentErrorMessage);
 		return;
+	}
+
+	bool8 isCountInFullDocument = kTrue;
+	int32 pageIndexToCount = 0;// sdddafsg
+	PMString pagesInputBoxString = this->GetTextControlData(kLCTextEditBoxWidgetID);
+	if (!pagesInputBoxString.IsEmpty()) {
+		isCountInFullDocument = kFalse;
+		pageIndexToCount = pagesInputBoxString.GetAsNumber();
+		//	to count from 0.
+		pageIndexToCount--;
 	}
 
 
