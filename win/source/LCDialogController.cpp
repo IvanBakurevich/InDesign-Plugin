@@ -121,17 +121,74 @@ WidgetID LCDialogController::ValidateDialogFields(IActiveContext* myContext)
 	InterfacePtr<IPageList> pageList((IPMUnknown*)currentDocument, IID_IPAGELIST);
 	int32 docPagesCount = pageList->GetPageCount();
 
-	PMString::ConversionError parseErrorCode;
-	int32 pagesInputBoxInt = pagesInputBoxString.GetAsNumber(&parseErrorCode);
 
-	if (parseErrorCode != PMString::ConversionError::kNoError) {
-		result = kLCTextEditBoxWidgetID;
-		CAlert::InformationAlert("Value must be an integer.");
+
+	std::string initStr = pagesInputBoxString.GetUTF8String();
+	std::vector<std::string> vectorStr;
+	std::vector<int32> vectorInt;
+
+	initStr.erase(std::remove(initStr.begin(), initStr.end(), ' '), initStr.end());
+
+	std::stringstream ss(initStr);
+	std::string numStr;
+	while (getline(ss, numStr, ',')) {
+		vectorStr.push_back(numStr);
 	}
-	else if (pagesInputBoxInt < 0 || pagesInputBoxInt > docPagesCount) {
-		result = kLCTextEditBoxWidgetID;
-		CAlert::InformationAlert("Value is out of range.");
+
+
+
+
+	for (auto it = vectorStr.begin(); it != vectorStr.end(); it++) {
+		std::string currStr = *it;
+		bool isDigit = true;
+		bool isInterval = true;
+		for (int i = 0; i < currStr.size(); i++) {
+			if (currStr[i] < '0' || currStr[i] > '9') {
+				isDigit = false;
+				if (currStr[i] != '-') {
+					isInterval = false;
+				}
+			}
+		}
+
+		if (isDigit) {
+			int32 intValue = std::stoi(currStr);
+			if (intValue<0 || intValue> docPagesCount) {
+				result = kLCTextEditBoxWidgetID;
+				CAlert::InformationAlert("Value is out of range.");
+			}
+			vectorInt.push_back(intValue);
+		}
+		else if (isInterval) {
+			int32 leftBorder;
+			int32 rightBorder;
+			size_t found;
+			if ((found = currStr.find('-')) != std::string::npos) {
+				leftBorder = std::stoi(currStr.substr(0, found));
+				rightBorder = std::stoi(currStr.substr(found + 1, std::string::npos));
+			}
+
+			if (leftBorder >= rightBorder) {
+				result = kLCTextEditBoxWidgetID;
+				CAlert::InformationAlert("Invalid interval.");
+			}
+
+			if (leftBorder<0 || leftBorder > docPagesCount ||
+				rightBorder<0 || rightBorder > docPagesCount) {
+				result = kLCTextEditBoxWidgetID;
+				CAlert::InformationAlert("Value is out of range.");
+			}
+
+			for (int i = leftBorder; i <= rightBorder; i++) {
+				vectorInt.push_back(i);
+			}
+		}
+		else {
+			result = kLCTextEditBoxWidgetID;
+			CAlert::InformationAlert("Only integers and symbols - , allowed.");
+		}
 	}
+
 
 	return result;
 }
@@ -140,6 +197,7 @@ WidgetID LCDialogController::ValidateDialogFields(IActiveContext* myContext)
 */
 void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const WidgetID& widgetId)
 {
+	int xcount = 0;
 	int32 finalLinesCount = 0;
 	int32 pageLinesCount = 0;
 	int32 itemLinesCount = 0;
@@ -152,16 +210,78 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 		return;
 	}
 
-	bool8 isCountInFullDocument = kTrue;
-	int32 pageIndexToCount;
+
+
+	bool8 isCountInFullDocument = kFalse;
 	PMString pagesInputBoxString = this->GetTextControlData(kLCTextEditBoxWidgetID);
 
+	//	page indices starts from 1.
+	std::vector<int32> pagesIndicesVector;
 
-	if (!pagesInputBoxString.IsEmpty()) {
-		isCountInFullDocument = kFalse;
-		//	page index starts from 1.
-		pageIndexToCount = pagesInputBoxString.GetAsNumber();
+	if (pagesInputBoxString.IsEmpty()) {
+		isCountInFullDocument = kTrue;
 	}
+	else {
+
+
+		std::string initStr = pagesInputBoxString.GetUTF8String();
+		std::vector<std::string> vectorStr;
+
+
+
+		initStr.erase(std::remove(initStr.begin(), initStr.end(), ' '), initStr.end());
+
+		std::stringstream ss(initStr);
+		std::string numStr;
+		while (getline(ss, numStr, ',')) {
+			vectorStr.push_back(numStr);
+		}
+
+
+
+
+		for (auto it = vectorStr.begin(); it != vectorStr.end(); it++) {
+			std::string currStr = *it;
+			bool isDigit = true;
+			bool isInterval = true;
+			for (int i = 0; i < currStr.size(); i++) {
+				if (currStr[i] < '0' || currStr[i] > '9') {
+					isDigit = false;
+					if (currStr[i] != '-') {
+						isInterval = false;
+					}
+				}
+			}
+
+			if (isDigit) {
+				int32 intValue = std::stoi(currStr);
+				pagesIndicesVector.push_back(intValue);
+			}
+			else if (isInterval) {
+				int32 leftBorder;
+				int32 rightBorder;
+				size_t found;
+				if ((found = currStr.find('-')) != std::string::npos) {
+					leftBorder = std::stoi(currStr.substr(0, found));
+					rightBorder = std::stoi(currStr.substr(found + 1, std::string::npos));
+				}
+
+				for (int i = leftBorder; i <= rightBorder; i++) {
+					pagesIndicesVector.push_back(i);
+				}
+			}
+		}
+
+
+	}
+
+
+
+
+
+
+
+
 
 	IDataBase* db = currentDocument->GetDocWorkSpace().GetDataBase();
 	InterfacePtr<ISpreadList> spreadList(currentDocument, UseDefaultIID());
@@ -178,7 +298,8 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 		for (int32 pageIndex = 0; pageIndex < spread->GetNumPages(); pageIndex++) {
 			documentPageIndex++;
 
-			if (isCountInFullDocument == kFalse && pageIndexToCount != documentPageIndex) {
+			if (isCountInFullDocument == kFalse &&
+				std::find(pagesIndicesVector.begin(), pagesIndicesVector.end(),documentPageIndex) == pagesIndicesVector.end()) {
 				continue;
 			}
 
@@ -233,14 +354,7 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 
 
 	output.Append((WideString)"LC plugin: ");
-	if (isCountInFullDocument) {
-		output.Append((WideString)"total lines in document - ");
-	}
-	else {
-		output.Append((WideString)"total lines on page ");
-		output.Append((WideString)std::to_string(pageIndexToCount).c_str());
-		output.Append((WideString)" - ");
-	}
+	output.Append((WideString)"total lines in document - ");
 	output.Append((WideString)std::to_string(finalLinesCount).c_str());
 
 	CAlert::InformationAlert(output);
