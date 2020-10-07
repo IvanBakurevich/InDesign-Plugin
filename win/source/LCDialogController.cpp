@@ -43,6 +43,11 @@
 #include <IWaxStrand.h>
 #include <IWaxLine.h>
 #include <CAlert.h>
+#include <IDocument.h>
+#include <IDataBase.h>
+#include <ISpread.h>
+#include <ISpreadList.h>
+#include <IGraphicFrameData.h>
 
 /** LCDialogController
 	Methods allow for the initialization, validation, and application of dialog widget
@@ -135,8 +140,9 @@ WidgetID LCDialogController::ValidateDialogFields(IActiveContext* myContext)
 */
 void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const WidgetID& widgetId)
 {
-	int finalLinesCount = 0;
-	int storyLinesCount = 0;
+	int32 finalLinesCount = 0;
+	int32 pageLinesCount = 0;
+	int32 itemLinesCount = 0;
 	WideString output;
 	WideString noActiveDocumentErrorMessage((WideString)"LC plugin: No active document found! Please, open existing one.");
 
@@ -147,57 +153,94 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 	}
 
 	bool8 isCountInFullDocument = kTrue;
-	int32 pageIndexToCount = 0;// sdddafsg
+	int32 pageIndexToCount;
 	PMString pagesInputBoxString = this->GetTextControlData(kLCTextEditBoxWidgetID);
+
+
 	if (!pagesInputBoxString.IsEmpty()) {
 		isCountInFullDocument = kFalse;
+		//	page index starts from 1.
 		pageIndexToCount = pagesInputBoxString.GetAsNumber();
-		//	to count from 0.
-		pageIndexToCount--;
 	}
 
+	IDataBase* db = currentDocument->GetDocWorkSpace().GetDataBase();
+	InterfacePtr<ISpreadList> spreadList(currentDocument, UseDefaultIID());
 
-	InterfacePtr<IStoryList> storyList((IPMUnknown*)currentDocument, IID_ISTORYLIST);
-
-
-	for (int32 i = 0; i < storyList->GetUserAccessibleStoryCount(); i++) {
-		storyLinesCount = 0;
-
-		// skip invalid UIDs
-		UIDRef storyRef = storyList->GetNthUserAccessibleStoryUID(i);
-		if (storyRef == kInvalidUIDRef) {
-			continue;
-		}
-
-		InterfacePtr<ITextModel> textModel(storyRef, IID_ITEXTMODEL);
-		InterfacePtr<IWaxStrand> waxStrand((IWaxStrand*)textModel->QueryStrand(kFrameListBoss, IID_IWAXSTRAND));
-		K2::scoped_ptr<IWaxIterator> waxIterator(waxStrand->NewWaxIterator());
+	int32 documentPageIndex = 0;
 
 
-		IWaxLine* firstLine;
-		IWaxLine* nextLine;
+	for (int32 spreadIndex = 0; spreadIndex < spreadList->GetSpreadCount(); spreadIndex++) {
 
-		firstLine = waxIterator->GetFirstWaxLine(0);
-		if (firstLine->GetTextSpan() > 1) {
-			storyLinesCount++;
-		}
+		UIDRef spreadUIDRef(db, spreadList->GetNthSpreadUID(spreadIndex));
+		InterfacePtr<ISpread> spread(spreadUIDRef, UseDefaultIID());
 
-		while ((nextLine = waxIterator->GetNextWaxLine()) != nil) {
 
-			if (nextLine->GetTextSpan() > 1) {
-				storyLinesCount++;
+		for (int32 pageIndex = 0; pageIndex < spread->GetNumPages(); pageIndex++) {
+			documentPageIndex++;
+
+			if (isCountInFullDocument == kFalse && pageIndexToCount != documentPageIndex) {
+				continue;
 			}
-		}
 
-		if (textModel->TotalLength() != textModel->GetPrimaryStoryThreadSpan()) {
-			storyLinesCount--;
-		}
+			UIDList pageItems(db);
+			pageLinesCount = 0;
 
-		finalLinesCount += storyLinesCount;
+			spread->GetItemsOnPage(pageIndex, &pageItems, kFalse);
+
+
+			for (int32 i = 0; i < pageItems.Length(); i++) {
+				UIDRef pageItemRef = pageItems.GetRef(i);
+				itemLinesCount = 0;
+
+				//InterfacePtr<ITextModel> textModel(pageItemRef, UseDefaultIID());
+				InterfacePtr<IGraphicFrameData> graphicFrameData(pageItemRef, UseDefaultIID());
+				if (!graphicFrameData) { break; }
+
+				InterfacePtr<IMultiColumnTextFrame> multiColumnTextFrame(graphicFrameData->QueryMCTextFrame());
+				if (!multiColumnTextFrame) { break; }
+				InterfacePtr<ITextModel> textModel(multiColumnTextFrame->QueryTextModel());
+
+				if (textModel) {
+					InterfacePtr<IWaxStrand> waxStrand((IWaxStrand*)textModel->QueryStrand(kFrameListBoss, IID_IWAXSTRAND));
+					K2::scoped_ptr<IWaxIterator> waxIterator(waxStrand->NewWaxIterator());
+
+
+					IWaxLine* firstLine;
+					IWaxLine* nextLine;
+
+					firstLine = waxIterator->GetFirstWaxLine(0);
+					if (firstLine->GetTextSpan() > 1) {
+						itemLinesCount++;
+					}
+
+					while ((nextLine = waxIterator->GetNextWaxLine()) != nil) {
+
+						if (nextLine->GetTextSpan() > 1) {
+							itemLinesCount++;
+						}
+					}
+
+					if (textModel->TotalLength() != textModel->GetPrimaryStoryThreadSpan()) {
+						itemLinesCount--;
+					}
+
+				}
+				pageLinesCount += itemLinesCount;
+			}
+			finalLinesCount += pageLinesCount;
+		}
 	}
 
 
-	output.Append((WideString)"LC plugin: total lines in document - ");
+	output.Append((WideString)"LC plugin: ");
+	if (isCountInFullDocument) {
+		output.Append((WideString)"total lines in document - ");
+	}
+	else {
+		output.Append((WideString)"total lines on page ");
+		output.Append((WideString)std::to_string(pageIndexToCount).c_str());
+		output.Append((WideString)" - ");
+	}
 	output.Append((WideString)std::to_string(finalLinesCount).c_str());
 
 	CAlert::InformationAlert(output);
