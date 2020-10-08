@@ -237,6 +237,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\source\Utilities.cpp" />
     <ClCompile Include="..\source\\LCActionComponent.cpp" />
     <ClCompile Include="..\source\\LCDialogController.cpp" />
     <ClCompile Include="..\source\\LCDialogObserver.cpp" />
@@ -253,6 +254,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\source\Utilities.h" />
     <ClInclude Include="..\source\\LCID.h" />
     <ClInclude Include="..\source\\LCFactoryList.h" />
   </ItemGroup>

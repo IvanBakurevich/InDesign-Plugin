@@ -42,6 +42,7 @@
     <ClCompile Include="$(id_sdk_dir)\source\precomp\msvc\VCPlugInHeaders.cpp">
       <Filter>Source Files\Plugin</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\\LCID.h">
@@ -50,6 +51,7 @@
     <ClInclude Include="..\source\\LCFactoryList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\Utilities.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\source\\LC.rc">
