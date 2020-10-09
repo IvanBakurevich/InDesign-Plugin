@@ -77,7 +77,7 @@ DECLARE_PMID(kClassIDSpace, kLCDialogBoss, kLCPrefix + 2)
 
 
 // InterfaceIDs:
-//DECLARE_PMID(kInterfaceIDSpace, IID_ILCINTERFACE, kLCPrefix + 0)
+DECLARE_PMID(kInterfaceIDSpace, IID_ILCDATA, kLCPrefix + 0)
 //DECLARE_PMID(kInterfaceIDSpace, IID_ILCINTERFACE, kLCPrefix + 1)
 //DECLARE_PMID(kInterfaceIDSpace, IID_ILCINTERFACE, kLCPrefix + 2)
 //DECLARE_PMID(kInterfaceIDSpace, IID_ILCINTERFACE, kLCPrefix + 3)
@@ -109,7 +109,7 @@ DECLARE_PMID(kClassIDSpace, kLCDialogBoss, kLCPrefix + 2)
 DECLARE_PMID(kImplementationIDSpace, kLCActionComponentImpl, kLCPrefix + 0 )
 DECLARE_PMID(kImplementationIDSpace, kLCDialogControllerImpl, kLCPrefix + 1 )
 DECLARE_PMID(kImplementationIDSpace, kLCDialogObserverImpl, kLCPrefix + 2 )
-//DECLARE_PMID(kImplementationIDSpace, kLCImpl, kLCPrefix + 3)
+DECLARE_PMID(kImplementationIDSpace, kLCDataPersistImpl, kLCPrefix + 3)
 //DECLARE_PMID(kImplementationIDSpace, kLCImpl, kLCPrefix + 4)
 //DECLARE_PMID(kImplementationIDSpace, kLCImpl, kLCPrefix + 5)
 //DECLARE_PMID(kImplementationIDSpace, kLCImpl, kLCPrefix + 6)

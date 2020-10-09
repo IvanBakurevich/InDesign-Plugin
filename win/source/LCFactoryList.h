@@ -23,3 +23,4 @@
 REGISTER_PMINTERFACE(LCActionComponent, kLCActionComponentImpl)
 REGISTER_PMINTERFACE(LCDialogController, kLCDialogControllerImpl)
 REGISTER_PMINTERFACE(LCDialogObserver, kLCDialogObserverImpl)
+REGISTER_PMINTERFACE(ILCData, kLCDataPersistImpl)
