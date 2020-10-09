@@ -70,14 +70,26 @@ private:
 		return vector;
 	}
 
-	std::vector<int32> getPageNumbersFromPageItems(std::vector<std::string>& pageItems) {
-		std::vector<int32> pageNumbers;
 
+	/**
+	* Parse string representation of pageItems (like pages or pages intervals) into exact integer page numbers, saves error message if some errors were ocured.
+	* 
+	* @param	pageItems		vector with string values of pageItems (like pages or pages intervals)
+	* @param	pageNumbers		vector for output pageItems elements parsed into page numbers
+	* @param	docTotalPages	total number of pages in document
+	* @param	errorMessage	string representing error occured during parsing, left empty if no errors were occured
+	* @return					kSuccess if there is no validation errors in PageItems, otherwise return kFailture
+	*/
+	ErrorCode retrievePageNumbersFromPageItems(std::vector<std::string>& pageItems, std::vector<int32>& pageNumbers, const int32 docTotalPages, WideString& errorMessage) {
 		for (auto it = pageItems.begin(); it != pageItems.end(); it++) {
 			std::string pageItem = *it;
 
 			if (isNumber(pageItem)) {
 				int32 pageIndex = std::stoi(pageItem);
+				if (!isPageValid(pageIndex, docTotalPages)) {
+					errorMessage = (WideString)"Validation Error. Page index out of range.";
+					return kFailure;
+				}
 				pageNumbers.push_back(pageIndex);
 			}
 			else if (isInterval(pageItem)) {
@@ -85,39 +97,23 @@ private:
 				int32 leftBorder = std::stoi(pageItem.substr(0, dashIndex));
 				int32 rightBorder = std::stoi(pageItem.substr(dashIndex + 1, pageItem.size()));
 
+				if (!isPageIntervalValid(leftBorder, rightBorder, docTotalPages)) {
+					errorMessage = (WideString)"Validation Error. Interval error.";
+					return kFailure;
+				}
+
 				for (int i = leftBorder; i <= rightBorder; i++) {
 					pageNumbers.push_back(i);
 				}
 			}
-		}
-		return pageNumbers;
-	}
-
-	WideString pageItemsValidationError(std::vector<std::string>& pageItems, int32 docTotalPages) {
-		for (auto it = pageItems.begin(); it != pageItems.end(); it++) {
-			std::string pageItem = *it;
-
-			if (isNumber(pageItem)) {
-				int32 pageIndex = std::stoi(pageItem);
-				if (!isPageValid(pageIndex, docTotalPages)) {
-					return (WideString)"Validation Error. Page index out of range.";
-				}
-			}
-			else if (isInterval(pageItem)) {
-				int32 dashIndex = pageItem.find('-');
-				int32 leftBorder = std::stoi(pageItem.substr(0, dashIndex));
-				int32 rightBorder = std::stoi(pageItem.substr(dashIndex + 1, pageItem.size()));
-
-				if (!isPageIntervalValid(leftBorder, rightBorder, docTotalPages)) {
-					return (WideString)"Validation Error. Interval error.";
-				}
-			}
 			else {
-				return (WideString)"Validation Error. Only integers and symbols - , allowed.";
+				errorMessage = (WideString)"Validation Error. Only integers and symbols - , allowed.";
+				return kFailure;
 			}
 		}
-		return WideString();
+		return kSuccess;
 	}
+
 
 	public:
 		/** Constructor.
@@ -191,7 +187,7 @@ WidgetID LCDialogController::ValidateDialogFields(IActiveContext* myContext)
 	}
 	InterfacePtr<IPageList> pageList(currentDocument, UseDefaultIID());
 
-	errorMessage = pageItemsValidationError(pageItems, pageList->GetPageCount());
+	retrievePageNumbersFromPageItems(pageItems, std::vector<int32>(), pageList->GetPageCount(), errorMessage);
 
 	if (!errorMessage.empty()) {
 		result = kLCTextEditBoxWidgetID;
@@ -232,7 +228,8 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 
 	if (!isCountInFullDocument) {
 		pageItems = getPageItems(inputBoxPMString.GetUTF8String());
-		pageNumbers = getPageNumbersFromPageItems(pageItems);
+		InterfacePtr<IPageList> pageList(currentDocument, UseDefaultIID());
+		retrievePageNumbersFromPageItems(pageItems, pageNumbers, pageList->GetPageCount(), WideString());
 	}
 
 
