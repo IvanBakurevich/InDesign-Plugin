@@ -43,6 +43,7 @@
       <Filter>Source Files\Plugin</Filter>
     </ClCompile>
     <ClCompile Include="..\source\Utilities.cpp" />
+    <ClCompile Include="..\source\LCDataPersist.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\\LCID.h">
@@ -52,6 +53,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\source\Utilities.h" />
+    <ClInclude Include="..\source\ILCData.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\source\\LC.rc">

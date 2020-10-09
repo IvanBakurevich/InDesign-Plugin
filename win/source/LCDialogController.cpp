@@ -44,6 +44,7 @@
 #include <IGraphicFrameData.h>
 
 #include "Utilities.h";
+#include "ILCData.h";
 
 /** LCDialogController
 	Methods allow for the initialization, validation, and application of dialog widget
@@ -157,7 +158,14 @@ CREATE_PMINTERFACE(LCDialogController, kLCDialogControllerImpl)
 void LCDialogController::InitializeDialogFields(IActiveContext* dlgContext)
 {
 	CDialogController::InitializeDialogFields(dlgContext);
-	// Put code to initialize widget values here.
+
+	IDocument* currentDocument = dlgContext->GetContextDocument();
+	if (currentDocument) {
+		InterfacePtr<ILCData>data(currentDocument->GetDocWorkSpace(), UseDefaultIID());
+		//	set init inputBox text
+		this->SetTextControlData(kLCTextEditBoxWidgetID, data->Get());
+	}
+	
 }
 
 /* ValidateFields
@@ -220,11 +228,9 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 	PMString inputBoxPMString = this->GetTextControlData(kLCTextEditBoxWidgetID);
 
 	// count in full documnet if empty.
-	if (inputBoxPMString.IsEmpty()) {
-		isCountInFullDocument = kTrue;
-	}
-	else {
-		isCountInFullDocument = kFalse;
+	isCountInFullDocument = inputBoxPMString.IsEmpty();
+
+	if (!isCountInFullDocument) {
 		pageItems = getPageItems(inputBoxPMString.GetUTF8String());
 		pageNumbers = getPageNumbersFromPageItems(pageItems);
 	}
@@ -232,6 +238,9 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 
 	IDataBase* db = currentDocument->GetDocWorkSpace().GetDataBase();
 	InterfacePtr<ISpreadList> spreadList(currentDocument, UseDefaultIID());
+
+	InterfacePtr<ILCData>data(currentDocument->GetDocWorkSpace(), UseDefaultIID());
+	data->Set((WideString)inputBoxPMString);
 
 	int32 documentPageIndex = 0;
 
@@ -245,7 +254,7 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 		for (int32 pageIndex = 0; pageIndex < spread->GetNumPages(); pageIndex++) {
 			documentPageIndex++;
 
-			if (isCountInFullDocument == kFalse &&
+			if (!isCountInFullDocument &&
 				//	skip if no such value in vector
 				std::find(pageNumbers.begin(), pageNumbers.end(), documentPageIndex) == pageNumbers.end()) {
 				continue;

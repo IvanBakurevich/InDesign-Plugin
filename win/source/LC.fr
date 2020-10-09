@@ -137,6 +137,17 @@ resource ClassDescriptionTable(kSDKDefClassDescriptionTableResourceID)
 		}
 	},
 
+		AddIn
+	{
+		kDocWorkspaceBoss,
+		kInvalidClass,
+		{
+			/**	See IBPIData and BPIDataPersist.
+			*/
+			IID_ILCDATA, kLCDataPersistImpl,
+		}
+	},
+
 }}};
 
 /*  
