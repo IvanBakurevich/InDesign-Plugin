@@ -169,6 +169,8 @@ void LCDialogController::ApplyDialogFields(IActiveContext* myContext, const Widg
 		linesCount = countLinesInFullDocument(currentDocument);
 	}
 	else {
+		InterfacePtr<ILCData>data(currentDocument->GetDocWorkSpace(), UseDefaultIID());
+		data->Set((WideString)inputBoxPMString);
 		InterfacePtr<IPageList> pageList(currentDocument, UseDefaultIID());
 		stringSplitItem = splitString(inputBoxPMString.GetUTF8String());
 		parsePageIntervalsFromStringToIntValues(stringSplitItem, pageIndices, pageList->GetPageCount(), WideString());

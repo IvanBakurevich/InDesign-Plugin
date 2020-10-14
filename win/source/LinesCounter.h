@@ -15,9 +15,21 @@
 #include <IWaxIterator.h>
 #include <IWaxLine.h>
 
-
+/**
+* Count number of text lines in document.
+*
+* @param	doc		document to count in
+* @return			number of text lines
+*/
 int32 countLinesInFullDocument(IDocument* doc);
 
+/**
+* Count number of text lines in document on particulat pages.
+*
+* @param	doc				document to count in
+* @param	pagesIndices	vector of pages in document in which to count (page index starts from 1)
+* @return					number of text lines
+*/
 int32 countLinesInDocumentByPages(IDocument* doc, std::vector<int32>pagesIndices);
 
 /**
@@ -30,6 +42,5 @@ int32 countLinesInDocumentByPages(IDocument* doc, std::vector<int32>pagesIndices
 * @return					kSuccess if there is no validation errors in PageItems, otherwise return kFailture
 */
 ErrorCode parsePageIntervalsFromStringToIntValues(std::vector<std::string>& pageItems, std::vector<int32>& pageNumbers, const int32 docTotalPages, WideString& errorMessage);
-
 
 #endif

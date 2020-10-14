@@ -3,10 +3,6 @@
 #include "Utilities.h"
 
 
-
-
-
-
 int32 countPagesInSpread(UIDRef spreadRef) {
 	InterfacePtr<ISpread> spread(spreadRef, UseDefaultIID());
 	return spread->GetNumPages();
@@ -33,21 +29,21 @@ std::vector<int32> getSpreadPagesIntervalsInDocument(IDocument* doc) {
 
 /**
  * Count text lines in text item via it's UIDRef.
- * Return -1 if UIDRef in invalid,
+ * Return 0 if UIDRef in invalid,
  *			 if UIDRef is not reference to text object.
  */
 int32 countLinesInItem(UIDRef itemRef) {
 	ASSERT(itemRef);
 	if (itemRef == kInvalidUIDRef) {
-		return -1;
+		return 0;
 	}
 	int32 linesCount = 0;
 	InterfacePtr<IGraphicFrameData> graphicFrameData(itemRef, UseDefaultIID());
-	if (!graphicFrameData) { return -1; }
+	if (!graphicFrameData) { return 0; }
 	InterfacePtr<IMultiColumnTextFrame> multiColumnTextFrame(graphicFrameData->QueryMCTextFrame());
-	if (!multiColumnTextFrame) { return -1; }
+	if (!multiColumnTextFrame) { return 0; }
 	InterfacePtr<ITextModel> textModel(multiColumnTextFrame->QueryTextModel());
-	if (!textModel) { return -1; }
+	if (!textModel) { return 0; }
 
 	InterfacePtr<IWaxStrand> waxStrand((IWaxStrand*)textModel->QueryStrand(kFrameListBoss, IID_IWAXSTRAND));
 	K2::scoped_ptr<IWaxIterator> waxIterator(waxStrand->NewWaxIterator());
@@ -72,15 +68,6 @@ int32 countLinesInItem(UIDRef itemRef) {
 	return linesCount;
 }
 
-/**
-* Parse string representation of pageItems (like pages or pages intervals) into exact integer page numbers, saves error message if some errors were ocured.
-*
-* @param	pageItems		vector with string values of pageItems (like pages or pages intervals)
-* @param	pageNumbers		vector for output pageItems elements parsed into page numbers
-* @param	docTotalPages	total number of pages in document
-* @param	errorMessage	string representing error occured during parsing, left empty if no errors were occured
-* @return					kSuccess if there is no validation errors in PageItems, otherwise return kFailture
-*/
 ErrorCode parsePageIntervalsFromStringToIntValues(std::vector<std::string>& pageItems, std::vector<int32>& pageNumbers, const int32 docTotalPages, WideString& errorMessage) {
 	for (auto it = pageItems.begin(); it != pageItems.end(); it++) {
 		std::string pageItem = *it;
@@ -115,19 +102,23 @@ ErrorCode parsePageIntervalsFromStringToIntValues(std::vector<std::string>& page
 	return kSuccess;
 }
 
+/**
+ * Parse vector of page indices from absolute index in document(starting from 1)
+ * to vector of objects containing page spread index and page in spread index.
+*/
 std::vector<PageInDoc> getPageInDocFromAbsIndices(std::vector<int32>absPageIndexes, std::vector<int32> spreadPagesIntervals) {
 	std::vector<PageInDoc>pagesInDoc;
 	std::set<int32> pagesSet;
-	std::copy(pagesSet.begin(), pagesSet.end(), back_inserter(absPageIndexes));
+
+	for (auto it = absPageIndexes.begin(); it != absPageIndexes.end(); it++) {
+		pagesSet.insert(*it);
+	}
 
 	for (auto it = pagesSet.begin(); it != pagesSet.end(); it++) {
 		pagesInDoc.push_back(PageInDoc(*it, spreadPagesIntervals));
 	}
 	return pagesInDoc;
 }
-
-
-
 
 int32 countLinesOnDocumentPage(IDocument* doc, PageInDoc page) {
 	int32 linesCount = 0;
@@ -138,12 +129,11 @@ int32 countLinesOnDocumentPage(IDocument* doc, PageInDoc page) {
 	UIDList pageItems(db);
 	spread->GetItemsOnPage(page.getInSpreadIndex(), &pageItems, kFalse);
 
-	for (int32 i; i < pageItems.Length(); i++) {
+	for (int32 i = 0; i < pageItems.Length(); i++) {
 		linesCount += countLinesInItem(pageItems.GetRef(i));
 	}
 	return linesCount;
 }
-
 
 int32 countLinesInFullDocument(IDocument* doc) {
 	int32 linesCount = 0;
@@ -158,14 +148,13 @@ int32 countLinesInFullDocument(IDocument* doc) {
 			UIDList pageItems(db);
 			spread->GetItemsOnPage(pageIndex, &pageItems, kFalse);
 
-			for (int32 i; i < pageItems.Length(); i++) {
+			for (int32 i = 0; i < pageItems.Length(); i++) {
 				linesCount += countLinesInItem(pageItems.GetRef(i));
 			}
 		}
 	}
 	return linesCount;
 }
-
 
 int32 countLinesInDocumentByPages(IDocument* doc, std::vector<int32>pagesIndices) {
 	if (pagesIndices.empty()) {
@@ -180,15 +169,3 @@ int32 countLinesInDocumentByPages(IDocument* doc, std::vector<int32>pagesIndices
 	}
 	return linesCount;
 }
-
-//int32 countLinesInDocumentByPages1(IDocument* doc, std::vector<PageInDoc>pagesInDoc) {
-//	if (pagesInDoc.empty()) {
-//		return countLinesInFullDocument(doc);
-//	}
-//
-//	int32 linesCount = 0;
-//	for (int i = 0; i < pagesInDoc.size(); i++) {
-//		linesCount += countLinesOnDocumentPage(doc, pagesInDoc[i]);
-//	}
-//	return linesCount;
-//}

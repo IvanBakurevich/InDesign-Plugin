@@ -12,15 +12,16 @@ PageInDoc::PageInDoc(int32 absPageIndex, std::vector<int32> spreadPagesIntervals
 {
 	int32 spreadIndex = -1;
 	int32 inSpreadIndex = -1;
-	for (int32 i = 0; i < spreadPagesIntervals.size(); i++) {
-		if (spreadPagesIntervals[i] - absPageIndex >= 0) {
-			spreadIndex = i;
-			int prevSpreadIndex = 0;
-			if (i != 0) {
-				prevSpreadIndex = spreadPagesIntervals[i - 1];
-			}
-			inSpreadIndex = absPageIndex - prevSpreadIndex - 1;
+
+	int32 index = 0;
+	int32 prevValue = 0;
+	for (auto it = spreadPagesIntervals.begin(); it != spreadPagesIntervals.end(); it++,index++) {
+		if (*it - absPageIndex >= 0) {
+			spreadIndex = index;
+			inSpreadIndex = absPageIndex - prevValue - 1;
+			break;
 		}
+		prevValue = *it;
 	}
 	this->spreadIndex = spreadIndex;
 	this->inSpreadIndex = inSpreadIndex;
