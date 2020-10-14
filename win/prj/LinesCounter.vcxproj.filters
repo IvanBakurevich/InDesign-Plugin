@@ -44,6 +44,8 @@
     </ClCompile>
     <ClCompile Include="..\source\Utilities.cpp" />
     <ClCompile Include="..\source\LCDataPersist.cpp" />
+    <ClCompile Include="..\source\LinesCounter.cpp" />
+    <ClCompile Include="..\source\PageInDoc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\\LCID.h">
@@ -54,6 +56,8 @@
     </ClInclude>
     <ClInclude Include="..\source\Utilities.h" />
     <ClInclude Include="..\source\ILCData.h" />
+    <ClInclude Include="..\source\LinesCounter.h" />
+    <ClInclude Include="..\source\PageInDoc.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\source\\LC.rc">

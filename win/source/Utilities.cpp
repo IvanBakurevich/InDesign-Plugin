@@ -1,5 +1,5 @@
-#include "Utilities.h";
 #include "VCPlugInHeaders.h"
+#include "Utilities.h";
 
 bool isNumber(std::string str) {
 	for (int i = 0; i < str.size(); i++) {
@@ -35,4 +35,17 @@ bool isPageIntervalValid(int leftBorder, int rightBorder, int totalPages) {
 		return false;
 	}
 	return true;
+}
+
+std::vector<std::string> splitString(std::string initStr) {
+	std::vector<std::string> vector;
+
+	initStr.erase(std::remove(initStr.begin(), initStr.end(), ' '), initStr.end());
+
+	std::stringstream ss(initStr);
+	std::string itemStr;
+	while (getline(ss, itemStr, ',')) {
+		vector.push_back(itemStr);
+	}
+	return vector;
 }
