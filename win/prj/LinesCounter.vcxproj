@@ -238,6 +238,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\source\LCDataPersist.cpp" />
+    <ClCompile Include="..\source\LinesCounter.cpp" />
+    <ClCompile Include="..\source\PageInDoc.cpp" />
     <ClCompile Include="..\source\Utilities.cpp" />
     <ClCompile Include="..\source\\LCActionComponent.cpp" />
     <ClCompile Include="..\source\\LCDialogController.cpp" />
@@ -256,6 +258,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\source\ILCData.h" />
+    <ClInclude Include="..\source\LinesCounter.h" />
+    <ClInclude Include="..\source\PageInDoc.h" />
     <ClInclude Include="..\source\Utilities.h" />
     <ClInclude Include="..\source\\LCID.h" />
     <ClInclude Include="..\source\\LCFactoryList.h" />
